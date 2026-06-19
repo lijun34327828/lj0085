@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    font-weight: 400;
+    color: theme('colors.bark.700');
+    background-color: theme('colors.cream.100');
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Noto Serif SC', Georgia, serif;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-track {
+    background: theme('colors.cream.300');
+    height: 8px;
+    border-radius: 9999px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: theme('colors.clay.500');
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    margin-top: -6px;
+    box-shadow: 0 2px 6px rgba(217, 119, 87, 0.4);
+    transition: all 0.2s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(217, 119, 87, 0.5);
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: theme('colors.cream.300');
+    height: 8px;
+    border-radius: 9999px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    background: theme('colors.clay.500');
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 2px 6px rgba(217, 119, 87, 0.4);
+    transition: all 0.2s ease;
+  }
+
+  input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(217, 119, 87, 0.5);
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+}
+
+@layer components {
+  .paper-bg {
+    background-color: theme('colors.cream.100');
+    background-image: 
+      linear-gradient(to bottom, rgba(250, 247, 242, 0.8), rgba(250, 247, 242, 0.95)),
+      theme('backgroundImage.paper-texture');
+    background-size: 100% 100%, 200px 200px;
+    background-blend-mode: normal, overlay;
+    background-repeat: repeat;
+  }
+
+  .card-base {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-card border border-cream-200/50;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .card-base:hover {
+    @apply shadow-card-hover -translate-y-0.5;
+  }
+
+  .btn-primary {
+    @apply px-6 py-2.5 bg-clay-500 text-white font-medium rounded-full;
+    @apply hover:bg-clay-600 active:bg-clay-700;
+    @apply transition-all duration-200 ease-out;
+    @apply shadow-md hover:shadow-lg;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-white rounded-xl border border-cream-300;
+    @apply focus:outline-none focus:ring-2 focus:ring-clay-400/50 focus:border-clay-400;
+    @apply transition-all duration-200;
+    @apply text-bark-700 placeholder-bark-300;
+  }
+
+  .hand-divider {
+    position: relative;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, theme('colors.clay.300'), transparent);
+    border-radius: 2px;
+  }
+
+  .hand-divider::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: theme('colors.clay.500');
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px theme('colors.cream.100');
+  }
+
+  .number-animate {
+    display: inline-block;
+    animation: numberRoll 0.4s ease-out;
+  }
+
+  .highlight-flash {
+    animation: highlightFlash 0.8s ease-out;
+  }
+
+  @keyframes highlightFlash {
+    0% { background-color: rgba(217, 119, 87, 0.2); }
+    100% { background-color: transparent; }
+  }
+}
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.cream.400') transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.cream.400');
+    border-radius: 3px;
+  }
+}
