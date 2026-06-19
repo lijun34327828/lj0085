@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Percent, Users, Tag, Settings, RotateCcw } from 'lucide-react';
 import type { CalculatorParams } from '../types';
 import { formatDiscount } from '../utils/format';
+
+const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
 
 interface ParameterPanelProps {
   params: CalculatorParams;
@@ -40,6 +42,64 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
   onReset,
   loading,
 }) => {
+  const [inputValues, setInputValues] = useState<Record<keyof CalculatorParams, string>>({
+    discountRate: String(params.discountRate),
+    estimatedFlow: String(params.estimatedFlow),
+    avgPrice: String(params.avgPrice),
+    dailyFlow: String(params.dailyFlow),
+    materialCostRate: String(params.materialCostRate),
+  });
+
+  useEffect(() => {
+    setInputValues({
+      discountRate: String(params.discountRate),
+      estimatedFlow: String(params.estimatedFlow),
+      avgPrice: String(params.avgPrice),
+      dailyFlow: String(params.dailyFlow),
+      materialCostRate: String(params.materialCostRate),
+    });
+  }, [params.discountRate, params.estimatedFlow, params.avgPrice, params.dailyFlow, params.materialCostRate]);
+
+  const handleInputChange = (key: keyof CalculatorParams, value: string) => {
+    setInputValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleInputBlur = (
+    key: keyof CalculatorParams,
+    parser: (v: string) => number,
+    min: number,
+    max: number,
+    fallback: number
+  ) => {
+    const raw = inputValues[key];
+    if (raw === '' || raw === null || raw === undefined) {
+      setInputValues(prev => ({ ...prev, [key]: String(fallback) }));
+      onUpdate(key, fallback as CalculatorParams[typeof key]);
+      return;
+    }
+    const parsed = parser(raw);
+    if (Number.isNaN(parsed)) {
+      setInputValues(prev => ({ ...prev, [key]: String(fallback) }));
+      onUpdate(key, fallback as CalculatorParams[typeof key]);
+      return;
+    }
+    const clamped = clamp(parsed, min, max);
+    setInputValues(prev => ({ ...prev, [key]: String(clamped) }));
+    onUpdate(key, clamped as CalculatorParams[typeof key]);
+  };
+
+  const handleSliderChange = (
+    key: keyof CalculatorParams,
+    parser: (v: string) => number,
+    value: string
+  ) => {
+    const parsed = parser(value);
+    if (!Number.isNaN(parsed)) {
+      setInputValues(prev => ({ ...prev, [key]: String(parsed) }));
+      onUpdate(key, parsed as CalculatorParams[typeof key]);
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between opacity-0 animate-fade-in-up">
@@ -69,8 +129,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
             </span>
             <input
               type="number"
-              value={params.discountRate}
-              onChange={(e) => onUpdate('discountRate', parseFloat(e.target.value) || 0)}
+              value={inputValues.discountRate}
+              onChange={(e) => handleInputChange('discountRate', e.target.value)}
+              onBlur={() => handleInputBlur('discountRate', parseFloat, 0.1, 1, params.discountRate)}
               step="0.05"
               min="0.1"
               max="1"
@@ -81,7 +142,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
           <input
             type="range"
             value={params.discountRate}
-            onChange={(e) => onUpdate('discountRate', parseFloat(e.target.value))}
+            onChange={(e) => handleSliderChange('discountRate', parseFloat, e.target.value)}
             step="0.05"
             min="0.5"
             max="1"
@@ -111,8 +172,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
             </div>
             <input
               type="number"
-              value={params.estimatedFlow}
-              onChange={(e) => onUpdate('estimatedFlow', parseInt(e.target.value) || 0)}
+              value={inputValues.estimatedFlow}
+              onChange={(e) => handleInputChange('estimatedFlow', e.target.value)}
+              onBlur={() => handleInputBlur('estimatedFlow', parseInt, 1, 500, params.estimatedFlow)}
               min="1"
               max="500"
               className="w-24 input-field text-right"
@@ -122,7 +184,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
           <input
             type="range"
             value={params.estimatedFlow}
-            onChange={(e) => onUpdate('estimatedFlow', parseInt(e.target.value))}
+            onChange={(e) => handleSliderChange('estimatedFlow', parseInt, e.target.value)}
             step="5"
             min="10"
             max="200"
@@ -153,8 +215,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
             </div>
             <input
               type="number"
-              value={params.avgPrice}
-              onChange={(e) => onUpdate('avgPrice', parseFloat(e.target.value) || 0)}
+              value={inputValues.avgPrice}
+              onChange={(e) => handleInputChange('avgPrice', e.target.value)}
+              onBlur={() => handleInputBlur('avgPrice', parseFloat, 10, 1000, params.avgPrice)}
               step="1"
               min="10"
               max="1000"
@@ -165,7 +228,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
           <input
             type="range"
             value={params.avgPrice}
-            onChange={(e) => onUpdate('avgPrice', parseInt(e.target.value))}
+            onChange={(e) => handleSliderChange('avgPrice', parseInt, e.target.value)}
             step="5"
             min="30"
             max="300"
@@ -192,8 +255,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
             <label className="block text-xs text-bark-400 mb-1.5">日常客流（人/天）</label>
             <input
               type="number"
-              value={params.dailyFlow}
-              onChange={(e) => onUpdate('dailyFlow', parseInt(e.target.value) || 0)}
+              value={inputValues.dailyFlow}
+              onChange={(e) => handleInputChange('dailyFlow', e.target.value)}
+              onBlur={() => handleInputBlur('dailyFlow', parseInt, 1, 500, params.dailyFlow)}
               min="1"
               className="input-field"
               disabled={loading}
@@ -203,8 +267,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
             <label className="block text-xs text-bark-400 mb-1.5">物料成本率</label>
             <input
               type="number"
-              value={params.materialCostRate}
-              onChange={(e) => onUpdate('materialCostRate', parseFloat(e.target.value) || 0)}
+              value={inputValues.materialCostRate}
+              onChange={(e) => handleInputChange('materialCostRate', e.target.value)}
+              onBlur={() => handleInputBlur('materialCostRate', parseFloat, 0, 0.9, params.materialCostRate)}
               step="0.05"
               min="0"
               max="0.9"
