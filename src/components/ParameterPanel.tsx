@@ -50,6 +50,12 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
     materialCostRate: String(params.materialCostRate),
   });
 
+  const [focusedField, setFocusedField] = useState<keyof CalculatorParams | null>(null);
+
+  const handleFocus = (key: keyof CalculatorParams) => {
+    setFocusedField(key);
+  };
+
   useEffect(() => {
     setInputValues({
       discountRate: String(params.discountRate),
@@ -71,6 +77,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
     max: number,
     fallback: number
   ) => {
+    setFocusedField(null);
     const raw = inputValues[key];
     if (raw === '' || raw === null || raw === undefined) {
       setInputValues(prev => ({ ...prev, [key]: String(fallback) }));
@@ -127,30 +134,33 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
             <span className="text-2xl font-bold text-clay-600">
               {formatDiscount(params.discountRate)}
             </span>
-            <input
-              type="number"
-              value={inputValues.discountRate}
-              onChange={(e) => handleInputChange('discountRate', e.target.value)}
-              onBlur={() => handleInputBlur('discountRate', parseFloat, 0.1, 1, params.discountRate)}
-              step="0.05"
-              min="0.1"
-              max="1"
-              className="w-24 input-field text-right"
-              disabled={loading}
-            />
+            <div className="flex flex-col items-end">
+              <input
+                type="text"
+                value={focusedField === 'discountRate' ? inputValues.discountRate : formatDiscount(parseFloat(inputValues.discountRate) || 0)}
+                onChange={(e) => handleInputChange('discountRate', e.target.value)}
+                onFocus={() => handleFocus('discountRate')}
+                onBlur={() => handleInputBlur('discountRate', parseFloat, 0.1, 1, params.discountRate)}
+                className="w-24 input-field text-right"
+                disabled={loading}
+              />
+              {focusedField === 'discountRate' && (
+                <span className="text-xs text-bark-400 mt-1">填写完成后点击其他区域生效</span>
+              )}
+            </div>
           </div>
           <input
             type="range"
             value={params.discountRate}
             onChange={(e) => handleSliderChange('discountRate', parseFloat, e.target.value)}
             step="0.05"
-            min="0.5"
+            min="0.1"
             max="1"
             className="w-full"
             disabled={loading}
           />
           <div className="flex justify-between text-xs text-bark-400">
-            <span>5折</span>
+            <span>1折</span>
             <span>10折（原价）</span>
           </div>
         </div>
@@ -170,30 +180,36 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
               </span>
               <span className="text-sm text-bark-400">人/天</span>
             </div>
-            <input
-              type="number"
-              value={inputValues.estimatedFlow}
-              onChange={(e) => handleInputChange('estimatedFlow', e.target.value)}
-              onBlur={() => handleInputBlur('estimatedFlow', parseInt, 1, 500, params.estimatedFlow)}
-              min="1"
-              max="500"
-              className="w-24 input-field text-right"
-              disabled={loading}
-            />
+            <div className="flex flex-col items-end">
+              <input
+                type="number"
+                value={inputValues.estimatedFlow}
+                onChange={(e) => handleInputChange('estimatedFlow', e.target.value)}
+                onFocus={() => handleFocus('estimatedFlow')}
+                onBlur={() => handleInputBlur('estimatedFlow', parseInt, 1, 500, params.estimatedFlow)}
+                min="1"
+                max="500"
+                className="w-24 input-field text-right"
+                disabled={loading}
+              />
+              {focusedField === 'estimatedFlow' && (
+                <span className="text-xs text-bark-400 mt-1">填写完成后点击其他区域生效</span>
+              )}
+            </div>
           </div>
           <input
             type="range"
             value={params.estimatedFlow}
             onChange={(e) => handleSliderChange('estimatedFlow', parseInt, e.target.value)}
             step="5"
-            min="10"
-            max="200"
+            min="1"
+            max="500"
             className="w-full"
             disabled={loading}
           />
           <div className="flex justify-between text-xs text-bark-400">
-            <span>10人</span>
-            <span>200人</span>
+            <span>1人</span>
+            <span>500人</span>
           </div>
         </div>
       </ParamCard>
@@ -213,31 +229,37 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
               </span>
               <span className="text-sm text-bark-400">/人次</span>
             </div>
-            <input
-              type="number"
-              value={inputValues.avgPrice}
-              onChange={(e) => handleInputChange('avgPrice', e.target.value)}
-              onBlur={() => handleInputBlur('avgPrice', parseFloat, 10, 1000, params.avgPrice)}
-              step="1"
-              min="10"
-              max="1000"
-              className="w-24 input-field text-right"
-              disabled={loading}
-            />
+            <div className="flex flex-col items-end">
+              <input
+                type="number"
+                value={inputValues.avgPrice}
+                onChange={(e) => handleInputChange('avgPrice', e.target.value)}
+                onFocus={() => handleFocus('avgPrice')}
+                onBlur={() => handleInputBlur('avgPrice', parseFloat, 10, 1000, params.avgPrice)}
+                step="1"
+                min="10"
+                max="1000"
+                className="w-24 input-field text-right"
+                disabled={loading}
+              />
+              {focusedField === 'avgPrice' && (
+                <span className="text-xs text-bark-400 mt-1">填写完成后点击其他区域生效</span>
+              )}
+            </div>
           </div>
           <input
             type="range"
             value={params.avgPrice}
             onChange={(e) => handleSliderChange('avgPrice', parseInt, e.target.value)}
             step="5"
-            min="30"
-            max="300"
+            min="10"
+            max="1000"
             className="w-full"
             disabled={loading}
           />
           <div className="flex justify-between text-xs text-bark-400">
-            <span>¥30</span>
-            <span>¥300</span>
+            <span>¥10</span>
+            <span>¥1000</span>
           </div>
         </div>
       </ParamCard>
@@ -257,11 +279,15 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
               type="number"
               value={inputValues.dailyFlow}
               onChange={(e) => handleInputChange('dailyFlow', e.target.value)}
+              onFocus={() => handleFocus('dailyFlow')}
               onBlur={() => handleInputBlur('dailyFlow', parseInt, 1, 500, params.dailyFlow)}
               min="1"
               className="input-field"
               disabled={loading}
             />
+            {focusedField === 'dailyFlow' && (
+              <span className="text-xs text-bark-400 mt-1 block">填写完成后点击其他区域生效</span>
+            )}
           </div>
           <div>
             <label className="block text-xs text-bark-400 mb-1.5">物料成本率</label>
@@ -269,6 +295,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
               type="number"
               value={inputValues.materialCostRate}
               onChange={(e) => handleInputChange('materialCostRate', e.target.value)}
+              onFocus={() => handleFocus('materialCostRate')}
               onBlur={() => handleInputBlur('materialCostRate', parseFloat, 0, 0.9, params.materialCostRate)}
               step="0.05"
               min="0"
@@ -276,6 +303,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({
               className="input-field"
               disabled={loading}
             />
+            {focusedField === 'materialCostRate' && (
+              <span className="text-xs text-bark-400 mt-1 block">填写完成后点击其他区域生效</span>
+            )}
           </div>
         </div>
       </div>
